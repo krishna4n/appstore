@@ -1,21 +1,22 @@
 import './index.css'
 
-const Tabs = props => {
-  const {tabsList, tabsId, changeTab} = props
-  const tabChanged = event => {
-    changeTab(event.target.textContent)
+const TabItem = props => {
+  const {tabDetails, setActiveTabId, isActive} = props
+  const {tabId, displayText} = tabDetails
+
+  const onClickTab = () => {
+    setActiveTabId(tabId)
   }
-  const tabStyle =
-    tabsList.tabId.toUpperCase() === tabsId.toUpperCase()
-      ? 'button-active'
-      : 'button'
+
+  const tabBtnClassName = isActive ? 'tab-button active' : 'tab-button'
+
   return (
-    <li>
-      <button type="button" className={tabStyle} onClick={tabChanged}>
-        {tabsList.displayText}
+    <li className="tab-item">
+      <button type="button" onClick={onClickTab} className={tabBtnClassName}>
+        {displayText}
       </button>
     </li>
   )
 }
 
-export default Tabs
+export default TabItem
