@@ -1,7 +1,12 @@
 import {Component} from 'react'
-import './index.css'
-import TabItem from '../TabItem'
+
 import AppItem from '../AppItem'
+import TabItem from '../TabItem'
+
+import './index.css'
+
+const SEARCH_ICON_URL =
+  'https://assets.ccbp.in/frontend/react-js/app-store/app-store-search-img.png'
 
 const tabsList = [
   {tabId: 'SOCIAL', displayText: 'Social'},
@@ -292,67 +297,80 @@ const appsList = [
   },
 ]
 
-class Appstore extends Component {
-  state = {tabsId: tabsList[0].tabId, searchInput: ''}
+class AppStore extends Component {
+  state = {
+    searchInput: '',
+    activeTabId: tabsList[0].tabId,
+  }
 
-  searchApp = event => this.setState({searchInput: event.target.value})
+  setActiveTabId = tabId => {
+    this.setState({activeTabId: tabId})
+  }
 
-  changeTab = id => {
-    this.setState({
-      tabsId: id,
-    })
-    this.setState({
-      searchInput: '',
-    })
+  onChangeSearchInput = event => {
+    this.setState({searchInput: event.target.value})
+  }
+
+  getActiveTabApps = searchedApps => {
+    const {activeTabId} = this.state
+    const filteredApps = searchedApps.filter(
+      eachSearchedApp => eachSearchedApp.category === activeTabId,
+    )
+
+    return filteredApps
+  }
+
+  getSearchResults = () => {
+    const {searchInput} = this.state
+    const searchResults = appsList.filter(eachApp =>
+      eachApp.appName.toLowerCase().includes(searchInput.toLowerCase()),
+    )
+
+    return searchResults
   }
 
   render() {
-    const {tabsId, searchInput} = this.state
+    const {searchInput, activeTabId} = this.state
+    const searchResults = this.getSearchResults()
+    const filteredApps = this.getActiveTabApps(searchResults)
 
-    let filteredApps = appsList
-    filteredApps = filteredApps.filter(
-      eachApp => eachApp.category.toUpperCase() === tabsId.toUpperCase(),
-    )
-    if (searchInput !== '') {
-      filteredApps = filteredApps.filter(eachApp =>
-        eachApp.appName.toUpperCase().includes(searchInput.toUpperCase()),
-      )
-    }
     return (
-      <div className="container">
-        <h1>App Store</h1>
-        <div className="search-container">
-          <input
-            type="search"
-            className="search-input"
-            placeholder="Search"
-            onChange={this.searchApp}
-            value={searchInput}
-          />
-          <img
-            src="https://assets.ccbp.in/frontend/react-js/app-store/app-store-search-img.png"
-            alt="search icon"
-            className="search-icon"
-          />
-        </div>
-        <ul className="tabs-container">
-          {tabsList.map(eachTab => (
-            <TabItem
-              tabsList={eachTab}
-              key={eachTab.tabId}
-              tabsId={tabsId}
-              changeTab={this.changeTab}
+      <div className="app-container">
+        <div className="app-store">
+          <h1 className="heading">App Store</h1>
+          <div className="search-input-container">
+            <input
+              type="search"
+              placeholder="Search"
+              className="search-input"
+              value={searchInput}
+              onChange={this.onChangeSearchInput}
             />
-          ))}
-        </ul>
-        <ul className="apps-container">
-          {filteredApps.map(eachApp => (
-            <AppItem appsList={eachApp} key={eachApp.appId} />
-          ))}
-        </ul>
+            <img
+              src={SEARCH_ICON_URL}
+              alt="search icon"
+              className="search-icon"
+            />
+          </div>
+          <ul className="tabs-list">
+            {tabsList.map(eachTab => (
+              <TabItem
+                key={eachTab.tabId}
+                tabDetails={eachTab}
+                setActiveTabId={this.setActiveTabId}
+                isActive={activeTabId === eachTab.tabId}
+              />
+            ))}
+          </ul>
+          <ul className="apps-list">
+            {filteredApps.map(eachApp => (
+              <AppItem key={eachApp.appId} appDetails={eachApp} />
+            ))}
+          </ul>
+        </div>
       </div>
     )
   }
 }
 
-export default Appstore
+export default AppStore
